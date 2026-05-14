@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+.env.local
+.env
+.env.*.local
+.vercel
+*.log
+bun.lockb

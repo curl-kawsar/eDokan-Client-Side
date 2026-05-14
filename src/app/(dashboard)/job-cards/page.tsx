@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ModuleList } from "@/components/module-list";
 import { Badge } from "@/components/ui/badge";
@@ -15,16 +16,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCustomerOptions, useVehicleOptions } from "@/hooks/use-lookups";
+import { jobStatusBadgeVariant, jobStatusLabel } from "@/lib/status-ui";
 import type { JobCard } from "@/lib/types";
 import { formatDate, formatTaka } from "@/lib/utils";
-
-const statusBn: Record<JobCard["status"], string> = {
-  pending: "অপেক্ষমান",
-  in_progress: "চলমান",
-  completed: "সম্পন্ন",
-  delivered: "ডেলিভারি",
-  cancelled: "বাতিল",
-};
 
 export default function JobCardsPage() {
   return (
@@ -35,14 +29,22 @@ export default function JobCardsPage() {
       queryKey="job-cards"
       addLabel="নতুন জব কার্ড"
       columns={[
-        { header: "জব নম্বর", cell: (row) => <span className="font-semibold">{row.jobNo}</span> },
+        {
+          header: "জব নম্বর",
+          cell: (row) => (
+            <Link
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+              href={`/job-cards/${row.id}`}
+            >
+              {row.jobNo}
+            </Link>
+          ),
+        },
         { header: "গ্রাহক", cell: (row) => row.customer?.name ?? "-" },
         {
           header: "স্ট্যাটাস",
           cell: (row) => (
-            <Badge variant={row.status === "completed" ? "success" : "secondary"}>
-              {statusBn[row.status]}
-            </Badge>
+            <Badge variant={jobStatusBadgeVariant(row.status)}>{jobStatusLabel(row.status)}</Badge>
           ),
         },
         { header: "মোট", cell: (row) => formatTaka(row.total ?? 0) },

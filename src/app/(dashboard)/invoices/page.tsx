@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ModuleList } from "@/components/module-list";
 import { Badge } from "@/components/ui/badge";
@@ -15,24 +16,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCustomerOptions, useJobCardOptions } from "@/hooks/use-lookups";
-import type { Invoice, JobCard } from "@/lib/types";
+import { invoiceStatusBadgeVariant, invoiceStatusLabel, jobStatusLabel } from "@/lib/status-ui";
+import type { Invoice } from "@/lib/types";
 import { formatDate, formatTaka } from "@/lib/utils";
-
-const statusBn: Record<Invoice["status"], string> = {
-  draft: "ড্রাফট",
-  unpaid: "বকেয়া",
-  partial: "আংশিক",
-  paid: "পরিশোধিত",
-  cancelled: "বাতিল",
-};
-
-const jobStatusBn: Record<JobCard["status"], string> = {
-  pending: "অপেক্ষমান",
-  in_progress: "চলমান",
-  completed: "সম্পন্ন",
-  delivered: "ডেলিভারি",
-  cancelled: "বাতিল",
-};
 
 const NO_JOB_CARD = "__none__";
 
@@ -45,15 +31,25 @@ export default function InvoicesPage() {
       queryKey="invoices"
       addLabel="নতুন ইনভয়েস"
       columns={[
-        { header: "ইনভয়েস", cell: (row) => <span className="font-semibold">{row.invoiceNo}</span> },
+        {
+          header: "ইনভয়েস",
+          cell: (row) => (
+            <Link
+              className="font-semibold text-primary underline-offset-4 hover:underline"
+              href={`/invoices/${row.id}`}
+            >
+              {row.invoiceNo}
+            </Link>
+          ),
+        },
         { header: "গ্রাহক", cell: (row) => row.customer?.name ?? "-" },
         { header: "মোট", cell: (row) => formatTaka(row.total) },
         { header: "বকেয়া", cell: (row) => formatTaka(row.dueAmount) },
         {
           header: "স্ট্যাটাস",
           cell: (row) => (
-            <Badge variant={row.status === "paid" ? "success" : "warning"}>
-              {statusBn[row.status]}
+            <Badge variant={invoiceStatusBadgeVariant(row.status)}>
+              {invoiceStatusLabel(row.status)}
             </Badge>
           ),
         },
@@ -140,7 +136,7 @@ function InvoiceForm({
             <SelectItem value={NO_JOB_CARD}>— কোনো জব কার্ড নয় —</SelectItem>
             {(jobCards.data ?? []).map((jobCard) => (
               <SelectItem key={jobCard.id} value={jobCard.id}>
-                {jobCard.jobNo} — {jobStatusBn[jobCard.status]}
+                {jobCard.jobNo} — {jobStatusLabel(jobCard.status)}
               </SelectItem>
             ))}
           </SelectContent>

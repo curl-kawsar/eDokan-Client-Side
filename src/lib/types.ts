@@ -47,18 +47,51 @@ export type Part = {
   lowStockThreshold: number;
 };
 
+export type ActivityLogUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+};
+
+export type ActivityLog = {
+  id: string;
+  entityType: string;
+  entityId: string;
+  userId: string | null;
+  action: string;
+  summary: string | null;
+  meta: Record<string, unknown> | null;
+  createdAt: string;
+  user?: ActivityLogUser | null;
+};
+
 export type JobCard = {
   id: string;
   jobNo: string;
   status: "pending" | "in_progress" | "completed" | "delivered" | "cancelled";
   complaint?: string | null;
   diagnosis?: string | null;
+  workDone?: string | null;
   laborCost: string | number;
   discount: string | number;
   total?: number;
   createdAt: string;
+  updatedAt?: string;
   customer?: Customer;
   vehicle?: Vehicle;
+  items?: unknown[];
+  activities?: ActivityLog[];
+};
+
+export type Payment = {
+  id: string;
+  invoiceId: string;
+  amount: string;
+  method: string;
+  transactionRef?: string | null;
+  paidAt: string;
+  notes?: string | null;
 };
 
 export type Invoice = {
@@ -69,7 +102,15 @@ export type Invoice = {
   paidAmount: string;
   dueAmount: string;
   issueDate: string;
+  subtotal?: string;
+  discount?: string;
+  tax?: string;
+  notes?: string | null;
+  createdAt?: string;
   customer?: Customer;
+  jobCard?: JobCard | null;
+  payments?: Payment[];
+  activities?: ActivityLog[];
 };
 
 export type DashboardOverview = {
